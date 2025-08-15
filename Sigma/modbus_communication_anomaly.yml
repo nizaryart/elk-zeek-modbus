@@ -1,0 +1,42 @@
+title: Modbus Communication Baseline Deviation Detection
+id: c3d4e5f6-3456-789a-bcde-345678901234
+description: Detects deviations from established Modbus communication baseline (192.168.90.5 -> 192.168.95.2:502 using READ functions)
+status: experimental
+author: security_analyst
+logsource:
+  product: zeek
+  service: modbus
+  category: application
+detection:
+  # Your established baseline pattern
+  baseline:
+    id.orig_h: "192.168.90.5"
+    id.resp_h: "192.168.95.2" 
+    id.resp_p: 502
+    func:
+      - "READ_INPUT_REGISTERS"
+      - "READ_COILS"
+  # Detect any Modbus traffic that deviates from baseline
+  selection_deviation:
+    # This will match any modbus traffic
+    pdu_type:
+      - "REQ"
+      - "RESP"
+  condition: selection_deviation and not baseline
+fields:
+  - ts
+  - uid
+  - id.orig_h
+  - id.orig_p
+  - id.resp_h
+  - id.resp_p
+  - tid
+  - unit
+  - func
+  - pdu_type
+level: medium
+tags:
+  - attack.ics
+  - attack.discovery
+  - attack.network
+  - modbus.baseline_deviation

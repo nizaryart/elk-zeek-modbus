@@ -1,0 +1,44 @@
+title: Modbus Remote System Information Discovery (MITRE T0888)
+id: b2c3d4e5-2345-6789-abcd-234567890123
+description: Detects Modbus reconnaissance activity by monitoring for unusual sources, destinations, or functions outside normal READ operations
+status: experimental
+author: security_analyst
+logsource:
+  product: zeek
+  service: modbus
+  category: application
+detection:
+  # Detect any function that's not your normal read operations (reconnaissance)
+  selection_recon_function:
+    func:
+      - "!READ_INPUT_REGISTERS"
+      - "!READ_COILS"
+  # Detect scanning from unusual source IPs
+  selection_unusual_source:
+    pdu_type: "REQ"
+    id.orig_h: "!192.168.90.5"
+  # Detect scanning to unusual destination IPs (asset discovery)
+  selection_unusual_dest:
+    pdu_type: "REQ"
+    id.resp_h: "!192.168.95.2"
+  # Detect scanning on unusual ports
+  selection_port_scan:
+    id.resp_p: "!502"
+  condition: selection_recon_function or selection_unusual_source or selection_unusual_dest or selection_port_scan
+fields:
+  - ts
+  - uid
+  - id.orig_h
+  - id.orig_p
+  - id.resp_h
+  - id.resp_p
+  - tid
+  - unit
+  - func
+  - pdu_type
+level: high
+tags:
+  - attack.ics
+  - attack.t0888
+  - attack.discovery
+  - attack.collection

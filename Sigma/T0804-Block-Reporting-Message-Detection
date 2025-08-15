@@ -1,0 +1,43 @@
+title: Modbus Block Reporting Message Detection (MITRE T0804)
+id: a1b2c3d4-1234-5678-9abc-123456789012
+description: Detects potential blocking of Modbus reporting by monitoring deviations from normal READ_INPUT_REGISTERS and READ_COILS traffic patterns
+status: experimental
+author: security_analyst
+logsource:
+  product: zeek
+  service: modbus
+  category: application
+detection:
+  # Detect any function that's not your normal read operations
+  selection_abnormal_function:
+    func:
+      - "!READ_INPUT_REGISTERS"
+      - "!READ_COILS"
+  # Detect requests without responses (potential blocking)
+  selection_req_only:
+    pdu_type: "REQ"
+  # Normal baseline - exclude this from alerts
+  filter_normal:
+    func:
+      - "READ_INPUT_REGISTERS" 
+      - "READ_COILS"
+    id.orig_h: "192.168.90.5"
+    id.resp_h: "192.168.95.2"
+    id.resp_p: 502
+  condition: selection_abnormal_function or (selection_req_only and not filter_normal)
+fields:
+  - ts
+  - uid
+  - id.orig_h
+  - id.orig_p
+  - id.resp_h
+  - id.resp_p
+  - tid
+  - unit
+  - func
+  - pdu_type
+level: high
+tags:
+  - attack.ics
+  - attack.t0804
+  - attack.inhibit_response_function

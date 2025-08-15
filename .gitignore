@@ -1,0 +1,18 @@
+# Elasticsearch data
+elasticsearch_data/ 
+data/
+# Logs
+*.log 
+logs/ 
+/var/log/
+# Docker & Credentials
+.env
+password
+secret
+credentials.txt
+# Temporary files
+*.tmp
+*.bak
+~
+# Old directories
+logstash/
